@@ -1,0 +1,77 @@
+Class Chronos__Facade
+
+	Public Const InvalidDate = "30.12.1899"
+	Public Const EmptyDate = "30.12.1899"
+	Public Const vbNullDate = "30.12.1899"
+
+	Private m_Date       As chronosDate_Factory
+	Private m_DateTime   As ChronosDateTime_Factory
+	Private m_Time       As chronosTime_Factory
+	Private m_Timer      As chronosTimer_Factory
+	Private m_YearWeek   As chronosYearWeek_Factory
+	Private m_Timespan   As chronosTimespan_Factory
+	
+	Public Property Get DateOnly() As ChronosDate_Factory
+		If m_Date Is Nothing Then Set m_Date = New ChronosDate_Factory
+		Set DateOnly = m_Date
+	End Property
+
+	Public Property Get DateTime() As ChronosDateTime_Factory
+		If m_DateTime Is Nothing Then Set m_DateTime = New ChronosDateTime_Factory
+		Set DateTime = m_DateTime
+	End Property
+
+	Public Property Get TimeOnly() As ChronosTime_Factory
+		If m_Time Is Nothing Then Set m_Time = New ChronosTime_Factory
+		Set TimeOnly = m_Time
+	End Property
+
+	Public Property Get Timer() As chronosTimer_Factory
+		If m_Timer Is Nothing Then Set m_Timer = New chronosTimer_Factory
+		Set Timer = m_Timer
+	End Property
+
+	Public Property Get YearWeek() As chronosYearWeek_Factory
+		If m_YearWeek Is Nothing Then Set m_YearWeek = New chronosYearWeek_Factory
+		Set YearWeek = m_YearWeek
+	End Property
+
+	Public Property Get Timespan() As chronosTimespan_Factory
+		If m_Timespan Is Nothing Then Set m_Timespan = New chronosTimespan_Factory
+		Set Timespan = m_Timespan
+	End Property
+
+	' ---------------------------------------------------------------------------------------------------------------
+
+	Public Function IsValidDate(ByVal TheDate As Variant) As Boolean
+		IsValidDate = VBA.IsDate(TheDate)
+	End Function
+	  
+	Public Function IsNullDate(ByVal TheDate As Variant) As Boolean
+		IsNullDate = Not VBA.IsDate(TheDate)
+	End Function
+		  
+	Public Function IsDateOnly(ByVal TheDate As Variant) As Boolean
+		Dim dt As Date
+		
+		dt = CDate(TheDate)
+		If (Hour(dt) = 0) And (Minute(dt) = 0) And (Second(dt) = 0) Then
+		  IsDateOnly = True
+		Else
+		  IsDateOnly = False
+		End If
+	  End Function
+	  
+	  Public Function IsTimeOnly(ByVal TheDate As Variant) As Boolean
+		Dim dt As Date
+		
+		dt = CDate(TheDate)
+		If (Year(dt) = Year(vbNullDate)) And (Month(dt) = Month(vbNullDate)) And (Day(dt) = Day(vbNullDate)) Then
+		  IsTimeOnly = True
+		Else
+		  IsTimeOnly = False
+		End If
+	  End Function
+	  
+	  
+End Class

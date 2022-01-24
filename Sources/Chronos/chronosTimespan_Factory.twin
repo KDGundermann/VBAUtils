@@ -1,0 +1,42 @@
+Class chronosTimespan_Factory
+
+	Attribute VB_GlobalNameSpace = False
+	Attribute VB_Creatable = False
+	Attribute VB_PredeclaredId = False
+	Attribute VB_Exposed = False
+	Option Compare Database
+	Option Explicit
+	
+	'---------------------------------------------------------------------------------------
+	' Procedure : FromSeconds
+	' Author    : K.Gundermann
+	' Date      : 23.10.2016
+	' Purpose   : Factory for Creating a TimeSpan class
+	' Namespace : Utils
+	'---------------------------------------------------------------------------------------
+	'
+	Public Function FromSeconds(ByVal TheSeconds As Long) As Timespan
+	  Set FromSeconds = New Timespan
+	  FromSeconds.TotalSeconds = TheSeconds
+	End Function
+	
+	Public Function Create(Optional ByVal Days As Long, _
+							Optional ByVal Hours As Integer, _
+							Optional ByVal Minutes As Integer, _
+							Optional ByVal Seconds As Integer, _
+							Optional ByVal Milliseconds As Long) As Timespan
+	  
+	  Set Create = New Timespan
+	  Call Create.Create(Days, Hours, Minutes, Seconds, Milliseconds)
+	End Function
+	
+	Public Function FromDateTimeDiff(ByVal FirstDate As DateTime, ByVal SecondDate As DateTime) As Timespan
+	  Set FromDateTimeDiff = New Timespan
+	  Call FromDateTimeDiff.Create(Days:=CLng(SecondDate.Year - FirstDate.Year) * 365 + CLng(SecondDate.DayInYear - FirstDate.DayInYear), _
+								Hours:=(SecondDate.Hour - FirstDate.Hour), _
+								Minutes:=(SecondDate.Minute - FirstDate.Minute), _
+								Seconds:=(SecondDate.Second - FirstDate.Second), _
+								Milliseconds:=(SecondDate.Millisecond - FirstDate.Millisecond))
+	End Function
+	
+End Class

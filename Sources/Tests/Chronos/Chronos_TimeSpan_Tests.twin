@@ -1,0 +1,96 @@
+[ TestFixture ]
+Module Chronos_TimeSpan_Tests
+
+	Private Function AreEqualFloats(ByVal Actual As Double, Expected As Double, Optional ByVal Tolerance As Double) As Boolean
+		If Actual > (Expected + Tolerance) Then
+			AreEqualFloats = False
+		ElseIf Actual < (Expected - Tolerance) Then
+			AreEqualFloats = False
+		Else
+			AreEqualFloats = True
+		End If
+	End Function
+	
+	[ TestCase ]
+	Public Sub TimeSpan_Total_Attributes()
+		' Arrange
+		Dim Subject As New Timespan
+		' Act
+		Subject.TotalSeconds = 36000
+		' Assert
+		Assert.Permissive.AreEqual 36000000, Subject.TotalMilliseconds
+		
+		Assert.Permissive.AreEqual 36000, Subject.TotalSeconds, "Seconds"
+		Assert.Permissive.AreEqual 600, Subject.TotalMinutes, "Minutes"
+		Assert.Permissive.AreEqual 10, Subject.TotalHours, "Hours"
+		Assert.Permissive.IsTrue Abs(0.4166 - Subject.TotalDays) < 0.01, "Days"
+	 End Sub
+		 
+	 [ TestCase ]
+	 Public Sub TimeSpan_Attributes()
+		' Arrange
+		Dim Subject As New Timespan
+		' Act
+		Subject.TotalSeconds = 36061
+		' Assert
+		Assert.Permissive.AreEqual 0, Subject.Milliseconds, "Millisceconds"
+		Assert.Permissive.AreEqual 1, Subject.Seconds, "Seconds"
+		Assert.Permissive.AreEqual 1, Subject.Minutes, "Minutes"
+		Assert.Permissive.AreEqual 10, Subject.Hours, "Hours"
+		Assert.Permissive.AreEqual 0, Subject.Days, "Days"
+	 End Sub
+	 
+	[ TestCase ]
+	 Public Sub TimeSpan_Add()
+		' Arrange
+		Dim Subject As New Timespan
+		' Act
+		Set Subject = Subject.AddDays(1).AddHours(1).AddMinutes(1).AddSeconds(1).AddMilliseconds(1)
+		
+		Assert.Permissive.IsTrue AreEqualFloats(Subject.TotalSeconds, 90061.001, 0.001), "Seconds"
+		Assert.Permissive.IsTrue AreEqualFloats(Subject.TotalMinutes, 1501.0166, 0.001), "Minutes"
+		Assert.Permissive.IsTrue AreEqualFloats(Subject.TotalHours, 25.0169, 0.001), "Hours"
+		Assert.Permissive.IsTrue AreEqualFloats(Subject.TotalDays, 1.04237, 0.001), "Days"
+		
+	  End Sub
+
+	  [ TestCase ]
+	  Public Sub AddTimeSpan_ToDateTime()
+		' Arrange
+		Dim dt1 As DateTime
+		Dim dt2 As DateTime
+		Dim dt3 As DateTime
+		Dim Subject As New Timespan
+		
+		Set dt1 = New DateTime
+		dt1.FromString "1.1.2010 08:00:00"
+		
+		Set dt3 = New DateTime
+		dt3.FromString "2.1.2010 09:01:01"
+		
+		' Act
+		Subject.Create(Days:= 1, Hours:= 1, Minutes:= 1, Seconds:= 1)
+		Set dt2 = dt1.Add(Subject)
+		
+		' Assert
+		Assert.Permissive.IsTrue dt2.IsEqual(dt3)
+	 End Sub
+	 
+	 [ TestCase ]
+	 Public Sub TimeSpan_ToString()
+		' Arrange
+		Dim Subject As New Timespan
+		' Act Assert
+		Assert.Permissive.AreEqual "1d00:00:00", Subject.Create(Days:=1).ToString
+		Assert.Permissive.AreEqual "1d01:01:01", Subject.Create(Days:=1, Hours:=1, Minutes:=1, Seconds:=1).ToString
+		
+		Assert.Permissive.AreEqual "01:01:01", Subject.Create(Hours:=1, Minutes:=1, Seconds:=1).ToString
+		Assert.Permissive.AreEqual "1d01:01:01.123", Subject.Create(Days:=1, Hours:=1, Minutes:=1, Seconds:=1, Milliseconds:=123).ToString
+		
+		' Noch nicht so richtig schön:
+		Assert.Permissive.AreEqual "1 Tag, 01 Stunden, 10 Minuten", Subject.Create(Days:=1, Hours:=1, Minutes:=10).ToString("%d Tag, %h Stunden, %m Minuten")
+		
+	  End Sub
+	  
+		   
+End Module

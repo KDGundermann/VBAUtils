@@ -1,0 +1,15 @@
+Class chronosTimer_Factory
+
+	Attribute VB_GlobalNameSpace = False
+	Attribute VB_Creatable = False
+	Attribute VB_PredeclaredId = False
+	Attribute VB_Exposed = False
+	Option Compare Database
+	Option Explicit
+	
+	Public Function New_(ByVal lngInterval As Long) As Timer
+	  Set New_ = New Timer
+	  New_.StartTimer lngInterval
+	End Function
+	
+End Class

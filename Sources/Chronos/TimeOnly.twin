@@ -1,0 +1,368 @@
+Class TimeOnly
+
+	Attribute VB_GlobalNameSpace = False
+	Attribute VB_Creatable = False
+	Attribute VB_PredeclaredId = False
+	Attribute VB_Exposed = True
+	'---------------------------------------------------------------------------------------
+	' Module    : Time
+	' Author    : K.Gundermann
+	' Date      : 17.01.2012
+	' Purpose   : Point of Time in a day (with millseconds!)
+	' See also  : clsDateTime, Timespan
+	'---------------------------------------------------------------------------------------
+	
+	Option Compare Binary
+	Option Explicit
+	
+	Private Const DEFAULT_TIME_FORMAT       As String = "<hh>:<mm>:<ss>.<FFF>"
+	Private Const ISO8601_TIME_FORMAT       As String = "hhmmss"
+	
+	Private Type t_Time
+	  Hour              As Integer
+	  Minute            As Integer
+	  Second            As Integer
+	  Millisecond       As Integer
+	  FormatString_Time As String
+	End Type
+	
+	Private z As t_Time
+	
+	' ----------------------------------------------------------------------------
+	' --- Initialization
+	' ----------------------------------------------------------------------------
+	
+	Public Sub Init(ByVal Hour As Integer, ByVal Minute As Integer, ByVal Second As Integer, Optional ByVal Millisecond As Integer)
+	  Me.Hour = Hour
+	  Me.Minute = Minute
+	  Me.Second = Second
+	  Me.Millisecond = Millisecond
+	End Sub
+	
+	' ----------------------------------------------------------------------------
+	' --- Conversion From
+	' ----------------------------------------------------------------------------
+	
+	Public Sub FromSystemTime(ByRef TheSystemTime As SYSTEMTIME)
+	  With TheSystemTime
+		z.Hour = .wHour
+		z.Minute = .wMinute
+		z.Second = .wSecond
+		z.Millisecond = .wMilliseconds
+	  End With
+	End Sub
+	
+	
+	Public Sub FromDate(ByVal TheDate As Date)
+	  Hour = VBA.Hour(TheDate)
+	  Minute = VBA.Minute(TheDate)
+	  Second = VBA.Second(TheDate)
+	  Millisecond = 0
+	End Sub
+	
+	Public Sub FromString(ByVal TheString As String)
+	  Dim parts1() As String
+	  Dim parts2() As String
+	  ' Call FromDate(NZDate(TheString))
+	  If IsNullString(TheString) Then Exit Sub
+	  
+	  parts1 = VBA.Split(TheString, ":")
+	  If UBound(parts1) <> 2 Then
+		Err.Raise vbObjectError, , "Invalid Time: " & TheString: Exit Sub
+	  End If
+	  parts2 = VBA.Split(parts1(2), ".")
+	  
+	  z.Hour = CInt(parts1(0))
+	  z.Minute = CInt(parts1(1))
+	  z.Second = CInt(parts2(0))
+	  If UBound(parts2) > 0 Then
+	   z.Millisecond = NZInt(parts2(1))
+	  Else
+		z.Millisecond = 0
+	  End If
+	End Sub
+	
+	Public Function Parse(ByVal TheValue As String) As TimeOnly
+	  Call Me.FromString(TheValue)
+	  Set Parse = Self
+	End Function
+	
+	' ----------------------------------------------------------------------------
+	' --- Conversion To
+	' ----------------------------------------------------------------------------
+	
+	Public Function ToDate() As Date
+	  ToDate = TimeSerial(Hour, Minute, Second)
+	End Function
+	
+	Public Function ToDateWithTime(ByVal InDay As Date) As Date
+	  ToDateWithTime = InDay + TimeSerial(Hour, Minute, Second)
+	End Function
+	
+	Public Function ToclsDateTime() As DateTime
+	  Set ToclsDateTime = New DateTime
+	  With ToclsDateTime
+		.Hour = Me.Hour
+		.Minute = Me.Minute
+		.Second = Me.Second
+		.Millisecond = Me.Millisecond
+	  End With
+	End Function
+	
+	' ----------------------------------------------------------------------------
+	
+	Public Function ToFormattedString(ByVal FormatString As String) As String
+	  Dim s As String
+	  
+	  s = FormatString
+	  If °String.Contains(FormatString, "<") Then
+		s = Replace(s, "<hh>", Format(Me.Hour, "00"))
+		s = Replace(s, "<h>", CStr(Me.Hour))
+		
+		s = Replace(s, "<mm>", Format(Me.Minute, "00"))
+		s = Replace(s, "<m>", CStr(Me.Minute))
+		
+		s = Replace(s, "<ss>", Format(Me.Second, "00"))
+		s = Replace(s, "<s>", CStr(Me.Second))
+		
+		s = Replace(s, "<FFF>", Format(Me.Millisecond, "000"))
+	  Else ' ISO Format
+		s = Replace(s, "hh", Format(Me.Hour, "00"))
+		s = Replace(s, "mm", Format(Me.Minute, "00"))
+		s = Replace(s, "ss", Format(Me.Second, "00"))
+	  End If
+	  ToFormattedString = s
+	End Function
+	
+	Public Function ToString(Optional ByVal Display As e_DateTimeFormat = dt_DateAndTime) As String
+	  Select Case Display
+		Case dt_Time:         ToString = ToFormattedString(Me.FormatString_Time)
+	  End Select
+	End Function
+	
+	' ----------------------------------------------------------------------------
+	
+	Public Function Clone() As TimeOnly
+	  Set Clone = New TimeOnly
+	  Clone.SetConfig z
+	End Function
+	
+	Friend Sub SetConfig(ByRef TheConfig As t_Time)
+	  z = TheConfig
+	End Sub
+	
+	' ----------------------------------------------------------------------------
+	' --- Properties
+	' ----------------------------------------------------------------------------
+	
+	Public Property Get Hour() As Integer
+		Hour = z.Hour
+	End Property
+	Public Property Let Hour(ByVal TheValue As Integer)
+	  If TheValue < 0 Or TheValue >= 24 Then
+		Err.Raise vbObjectError, , "Invalid Value: " & TheValue
+	  Else
+		z.Hour = TheValue
+	  End If
+	End Property
+	Public Property Get Minute() As Integer
+		Minute = z.Minute
+	End Property
+	Public Property Let Minute(ByVal TheValue As Integer)
+	  If TheValue < 0 Or TheValue >= 60 Then
+		Err.Raise vbObjectError, , "Invalid Value: " & TheValue
+	  Else
+		z.Minute = TheValue
+	  End If
+	End Property
+	Public Property Get Second() As Integer
+		Second = z.Second
+	End Property
+	Public Property Let Second(ByVal TheValue As Integer)
+	  If TheValue < 0 Or TheValue >= 60 Then
+		Err.Raise vbObjectError, , "Invalid Value: " & TheValue
+	  Else
+		z.Second = TheValue
+	  End If
+	End Property
+	Public Property Get Millisecond() As Long
+		Millisecond = z.Millisecond
+	End Property
+	Public Property Let Millisecond(ByVal TheValue As Long)
+	  If TheValue < 0 Or TheValue >= 1000 Then
+		Err.Raise vbObjectError, , "Invalid Value: " & TheValue
+	  Else
+		z.Millisecond = TheValue
+	  End If
+	End Property
+	
+	
+	' ----------------------------------------------------------------------------
+	' --- Functions
+	' ----------------------------------------------------------------------------
+	
+	Public Function Add(ByVal TheValue As Timespan) As TimeOnly
+	  Set Add = New DateTime
+	  With Add
+		Utils.Assert TheValue.Days = 0, "Can not add days to a Time"
+		
+		.Hour = Me.Hour + TheValue.Hours
+		.Minute = Me.Minute + TheValue.Minutes
+		.Second = Me.Second + TheValue.Seconds
+		.Millisecond = Me.Millisecond + TheValue.Milliseconds
+	  End With
+	End Function
+	
+	' Public Function AddHours(ByVal TheValue As Integer) As Time
+	'   Set AddHours = Chronos.Time_.FromDate(VBA.DateTime.DateAdd("h", TheValue, Me.ToDate))
+	'   AddHours.Millisecond = Me.Millisecond
+	' End Function
+	' Public Function AddMinutes(ByVal TheValue As Integer) As Time
+	'   Set AddMinutes = Chronos.Time_.FromDate(VBA.DateTime.DateAdd("n", TheValue, Me.ToDate))
+	'   AddMinutes.Millisecond = Me.Millisecond
+	' End Function
+	' Public Function AddSeconds(ByVal TheValue As Integer) As Time
+	'   Set AddSeconds = Chronos.Time_.FromDate(VBA.DateTime.DateAdd("s", TheValue, Me.ToDate))
+	'   AddSeconds.Millisecond = Me.Millisecond
+	' End Function
+	' Public Function AddMilliseconds(ByVal TheValue As Long) As Time
+	'   Set AddMilliseconds = Chronos.Time_.FromDate(VBA.DateTime.DateAdd("s", TheValue \ 1000, Me.ToDate))
+	'   AddMilliseconds.Millisecond = Me.Millisecond + (TheValue Mod 1000)
+	' End Function
+	
+	Public Function StartOfDay() As TimeOnly
+	  Set StartOfDay = Me.Clone
+	  With StartOfDay
+		.Hour = 0
+		.Minute = 0
+		.Second = 0
+		.Millisecond = 0
+	  End With
+	End Function
+	
+	Public Function EndOfDay() As TimeOnly
+	  Set EndOfDay = Me.Clone
+	  With EndOfDay
+		.Hour = 23
+		.Minute = 59
+		.Second = 59
+		.Millisecond = 999
+	  End With
+	End Function
+	
+	
+	' ----------------------------------------------------------------------------
+	' --- Comparator
+	' ----------------------------------------------------------------------------
+	
+	'---------------------------------------------------------------------------------------
+	' Procedure : Compare
+	' Author    : K.Gundermann
+	' Date      : 21.02.2012
+	' Purpose   : Returns:
+	'               -1  if Me < TheValue
+	'                0  if Me = TheValue
+	'               +1  if Me > TheValue
+	'---------------------------------------------------------------------------------------
+	'
+	Public Function CompareTo(ByVal TheValue As TimeOnly) As Integer
+	  
+	  If Me.Hour < TheValue.Hour Then
+		CompareTo = -1: Exit Function
+	  ElseIf Me.Hour > TheValue.Hour Then
+		CompareTo = 1: Exit Function
+	  End If
+	  
+	  If Me.Minute < TheValue.Minute Then
+		CompareTo = -1: Exit Function
+	  ElseIf Me.Minute > TheValue.Minute Then
+		CompareTo = 1: Exit Function
+	  End If
+	  
+	  If Me.Second < TheValue.Second Then
+		CompareTo = -1: Exit Function
+	  ElseIf Me.Second > TheValue.Second Then
+		CompareTo = 1: Exit Function
+	  End If
+	  
+	  If Me.Millisecond < TheValue.Millisecond Then
+		CompareTo = -1: Exit Function
+	  ElseIf Me.Millisecond > TheValue.Millisecond Then
+		CompareTo = 1: Exit Function
+	  End If
+	  
+	End Function
+	
+	Public Function GreaterThan(ByVal TheValue As TimeOnly) As Boolean
+	  GreaterThan = Me.CompareTo(TheValue) > 0
+	End Function
+	Public Function GreaterThanOrEqual(ByVal TheValue As TimeOnly) As Boolean
+	  GreaterThanOrEqual = Me.CompareTo(TheValue) >= 0
+	End Function
+	Public Function LessThan(ByVal TheValue As TimeOnly) As Boolean
+	  LessThan = Me.CompareTo(TheValue) < 0
+	End Function
+	Public Function LessThanOrEqual(ByVal TheValue As TimeOnly) As Boolean
+	  LessThanOrEqual = Me.CompareTo(TheValue) <= 0
+	End Function
+	
+	Public Function IsEqual(ByVal TheValue As TimeOnly) As Boolean
+	  IsEqual = Me.CompareTo(TheValue) = 0
+	End Function
+	Public Function IsAfter(ByVal TheValue As TimeOnly) As Boolean
+	  IsAfter = Me.CompareTo(TheValue) > 0
+	End Function
+	Public Function IsBefore(ByVal TheValue As TimeOnly) As Boolean
+	  IsBefore = Me.CompareTo(TheValue) < 0
+	End Function
+	
+	
+	Public Function DateDiff(ByVal TheValue As TimeOnly) As Timespan
+	' TODO:  Set DateDiff = Chronos.Timespan.FromDateTimeDiff(Me.ToclsDateTime, TheValue.ToclsDateTime)
+	End Function
+	
+	Public Property Get IsNullTime() As Boolean
+	  If Me.Hour <> 0 Then Exit Property
+	  If Me.Minute <> 0 Then Exit Property
+	  If Me.Second <> 0 Then Exit Property
+	  If Me.Millisecond <> 0 Then Exit Property
+	  IsNullTime = True
+	End Property
+	
+	Public Sub SetNullTime()
+	  Me.Hour = 0
+	  Me.Minute = 0
+	  Me.Second = 0
+	  Me.Millisecond = 0
+	End Sub
+	
+	' ----------------------------------------------------------------------------
+	' --- FormatStrings
+	' ----------------------------------------------------------------------------
+	
+	Public Property Get FormatString_Time() As String
+	  If Not IsNullString(z.FormatString_Time) Then
+		FormatString_Time = z.FormatString_Time
+	  Else
+		FormatString_Time = DEFAULT_TIME_FORMAT
+	  End If
+	End Property
+	Public Property Let FormatString_Time(ByVal TheValue As String)
+		z.FormatString_Time = TheValue
+	End Property
+	
+	Public Property Get FormatString_Time_DEFAULT() As String
+	  FormatString_Time_DEFAULT = DEFAULT_TIME_FORMAT
+	End Property
+	Public Property Get FormatString_Time_ISO() As String
+	  FormatString_Time_ISO = ISO8601_TIME_FORMAT
+	End Property
+	
+	
+	' ----------------------------------------------------------------------------
+	
+	Public Property Get Self() As TimeOnly
+	  Set Self = Me
+	End Property
+	
+End Class

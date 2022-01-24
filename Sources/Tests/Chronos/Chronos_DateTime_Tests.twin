@@ -1,0 +1,319 @@
+
+[ TestFixture ]
+Module Chronos_DateTime_Tests
+
+	Private c_Subject As DateTime
+	Private Property Get Subject() As DateTime
+		If c_Subject Is Nothing Then
+			Set c_Subject = Chronos.DateTime.FromString("31.12.2011 21:59:59")
+		End If
+		Set Subject = c_Subject
+	End Property
+		
+	[ TestCase ]
+	Public Sub Created_FromString()
+		' Assert
+		With Subject
+			Assert.Strict.AreEqual(2011, .Year)
+			Assert.Strict.AreEqual(12, .Month)
+			Assert.Strict.AreEqual(31, .Day)
+			Assert.Strict.AreEqual(21, .Hour)
+			Assert.Strict.AreEqual(59, .Minute)
+			Assert.Strict.AreEqual(59, .Second)
+			Assert.Strict.AreEqual(0, .Millisecond)
+		End With
+	End Sub
+	
+	[ TestCase ]
+	Public Sub Add_OneYear()
+		Dim dt As DateTime
+
+		' Act
+		Set dt = Subject.AddYears(1)
+		' Assert
+		With dt
+		  Assert.Exact.AreEqual(2012, .Year)
+		End With
+	End Sub
+	
+	[ TestCase ]
+	Public Sub Add_OneMonth()
+		Dim dt As DateTime
+	  
+		' Act
+		Set dt = Subject.AddMonths(1)
+		' Assert
+		With dt
+		  Assert.Exact.AreEqual(2012, .Year, "Year")
+		  Assert.Exact.AreEqual(1, .Month, "Month")
+		  Assert.Exact.AreEqual(31, .Day, "Day")
+		End With
+	  End Sub
+	  
+	  [ TestCase ]
+	  Public Sub Add_Day()
+		Dim dt As DateTime
+	  
+		' Act
+		Set dt = Subject.AddDays(1)
+		' Assert
+		With dt
+		  Assert.Exact.AreEqual(2012, .Year, "Year")
+		  Assert.Exact.AreEqual(1, .Month, "Month")
+		  Assert.Exact.AreEqual(1, .Day, "Day")
+		End With
+	  End Sub
+
+	  [ TestCase ]
+	  Public Sub Add_OneHour()
+		Dim dt As DateTime
+	  
+		' Act
+		Set dt = Subject.AddHours(1)
+		' Assert
+		With dt
+		  Assert.Exact.AreEqual(2011, .Year, "Year")
+		  Assert.Exact.AreEqual(12, .Month, "Month")
+		  Assert.Exact.AreEqual(31, .Day, "Day")
+		  Assert.Exact.AreEqual(22, .Hour, "Hour")
+		End With
+	  End Sub
+
+	  [ TestCase ]
+	  Public Sub Add_EightHours()
+		Dim dt As DateTime
+	  
+		' Act
+		Set dt = Subject.AddHours(8)
+		' Assert
+		With dt
+		  Assert.Exact.AreEqual(2012, .Year, "Year")
+		  Assert.Exact.AreEqual(1, .Month, "Month")
+		  Assert.Exact.AreEqual(1, .Day, "Day")
+		  Assert.Exact.AreEqual(5, .Hour, "Hour")
+		  Assert.Exact.AreEqual(59, .Minute, "Minute")
+		  Assert.Exact.AreEqual(59, .Second, "Second")
+		End With
+	  End Sub
+
+	  [ TestCase ]
+	  Public Sub Add_OneMinute()
+		Dim dt As DateTime
+	  
+		' Act
+		Set dt = Subject.AddMinutes(1)
+		' Assert
+		With dt
+		  Assert.Exact.AreEqual(2011, .Year, "Year")
+		  Assert.Exact.AreEqual(12, .Month, "Month")
+		  Assert.Exact.AreEqual(31, .Day, "Day")
+		  Assert.Exact.AreEqual(22, .Hour, "Hour")
+		  Assert.Exact.AreEqual(0, .Minute, "Minute")
+		  Assert.Exact.AreEqual(59, .Second, "Second")
+		End With
+	  End Sub
+	  
+	  [ TestCase ]
+	  Public Sub Add_OneSecond()
+		Dim dt As DateTime
+	  
+		' Act
+		Set dt = Subject.AddSeconds(1)
+		' Assert
+		With dt
+		  Assert.Exact.AreEqual(2011, .Year, "Year")
+		  Assert.Exact.AreEqual(12, .Month, "Month")
+		  Assert.Exact.AreEqual(31, .Day, "Day")
+		  Assert.Exact.AreEqual(22, .Hour, "Hour")
+		  Assert.Exact.AreEqual(0, .Minute, "Minute")
+		  Assert.Exact.AreEqual(0, .Second, "Second")
+		End With
+	  End Sub
+	  
+	  [ TestCase ]
+	  Public Sub Compare_DateTime()
+		Dim dt As DateTime
+	  
+		'Arrange
+		Set dt = OS.Time.Now
+		'Assert
+		Assert.Exact.IsTrue Subject.LessThan(dt)
+		Assert.Exact.IsTrue dt.GreaterThan(Subject)
+	  End Sub
+	  
+	 [ TestCase ]
+	  Public Sub DateDiff()
+		Dim dt As DateTime
+	  
+		'Arrange
+		Set dt = Subject.AddDays(10)
+		
+		Assert.Exact.IsNotNothing dt
+		Assert.Strict.AreEqual 10, Subject.DateDiff(dt).Days
+		Assert.Strict.AreEqual -10, dt.DateDiff(Subject).Days
+		
+		Assert.Strict.AreEqual 0, Subject.DateDiff(dt).Hours
+		Assert.Strict.AreEqual 10 * 24, Subject.DateDiff(dt).TotalHours
+		
+	  End Sub
+
+	  ' ------------------------------------------------------------------
+
+	  [ TestCase ]
+	  Public Sub ParseDateTimeString()
+		Dim dt As DateTime
+		
+		Set dt = Chronos.DateTime.FromString("01.02.03 01:02:03.123")
+		With dt
+			Assert.Exact.AreEqual 1, .Day
+			Assert.Strict.AreEqual 2, .Month
+			Assert.Strict.AreEqual 2003, .Year
+			
+			Assert.Strict.AreEqual 1, .Hour
+			Assert.Strict.AreEqual 2, .Minute
+			Assert.Strict.AreEqual 3, .Second
+			Assert.Strict.AreEqual 0, .Millisecond, "Millisecondas are not parsed !!!"
+		End With
+	  
+	  End Sub
+	  
+	  [ TestCase ]
+	  Public Sub ParseWithFormat1()
+		Dim dt As DateTime
+		Set dt = Chronos.DateTime.FromStringWithFormat("01.02.2003 01:02:03.123", Chronos.DateTime.New_.FormatString_DateTime)
+		With dt
+			Assert.Exact.AreEqual 1, .Day
+			Assert.Strict.AreEqual 2, .Month
+			Assert.Strict.AreEqual 2003, .Year
+			
+			Assert.Strict.AreEqual 1, .Hour
+			Assert.Strict.AreEqual 2, .Minute
+			Assert.Strict.AreEqual 3, .Second
+			Assert.Strict.AreEqual 0, .Millisecond, "Millisecondas are not parsed !!!"
+		End With
+	  End Sub
+
+	  [ TestCase ]
+	  Public Sub ParseWithFormatLong()
+		Dim dt As DateTime
+		Set dt = Chronos.DateTime.FromStringWithFormat("01.02.2003 01:02:03.123", Chronos.DateTime.New_.FormatString_DateTimeLong)
+		With dt
+			Assert.Exact.AreEqual 1, .Day
+			Assert.Strict.AreEqual 2, .Month
+			Assert.Strict.AreEqual 2003, .Year
+			
+			Assert.Strict.AreEqual 1, .Hour
+			Assert.Strict.AreEqual 2, .Minute
+			Assert.Strict.AreEqual 3, .Second
+			Assert.Strict.AreEqual 123, .Millisecond, "Millisecondas are parsed"
+		End With
+	  End Sub
+	  
+	[ TestCase ]
+	  Public Sub ParseWithCustomFormat()
+		Dim dt As DateTime
+		Set dt = Chronos.DateTime.FromStringWithFormat("20030201010203", "CCYYMMDDHHMMSS")
+		With dt
+			Assert.Exact.AreEqual 1, .Day
+			Assert.Strict.AreEqual 2, .Month
+			Assert.Strict.AreEqual 2003, .Year
+			
+			Assert.Strict.AreEqual 1, .Hour
+			Assert.Strict.AreEqual 2, .Minute
+			Assert.Strict.AreEqual 3, .Second
+			Assert.Strict.AreEqual 0, .Millisecond
+		End With
+	End Sub
+	
+	' ------------------------------------------------------------------
+	[ TestCase ]
+	Public Sub CheckWeekday()
+  		Dim dt As DateTime
+  
+  		Set dt = Chronos.DateTime.FromString("01.01.12")
+  
+  		Assert.Strict.AreEqual vbSaturday, Subject.Weekday, "31.12.2011"
+  		Assert.Strict.AreEqual vbSunday, dt.Weekday, "01.01.12"
+	End Sub
+	
+	[ TestCase ]
+	Public Sub CheckWorkingDays()
+		Dim dt As DateTime
+		
+		Set dt = Chronos.DateTime.FromString("01.01.12")
+	  
+		Assert.Strict.AreEqual vbMonday, dt.NextWorkingDay.Weekday
+		Assert.Strict.AreEqual vbMonday, Subject.NextWorkingDay.Weekday
+		
+		Assert.Strict.AreEqual vbFriday, dt.PrevWorkingDay.Weekday
+		Assert.Strict.AreEqual vbFriday, Subject.PrevWorkingDay.Weekday
+	  End Sub
+
+	[ TestCase ]
+	Public Sub CheckWeek()
+		Dim dt As DateTime
+	
+		Set dt = Chronos.DateTime.FromString("01.01.12")
+  
+		Assert.Strict.AreEqual 52, dt.WeekInYear
+		Assert.Strict.AreEqual 52, Subject.WeekInYear
+	
+		Assert.Strict.AreEqual "2011/52", dt.ToYearAndWeek
+  	End Sub
+  
+	[ TestCase ]
+	Public Sub CheckFormatDateTime()
+		Dim dt As DateTime
+		
+		Set dt = Chronos.DateTime.FromString("01.02.03 11:12:13")
+		
+		Assert.Strict.AreEqual "01.02.2003 11:12:13", dt.ToString
+	  End Sub
+	  
+	 [ TestCase ]
+	Public Sub CheckFormatDateTimeLong()
+		Dim dt As DateTime
+		
+		Set dt = Chronos.DateTime.FromString("01.02.03 11:12:13")
+		
+		Assert.Strict.AreEqual "01.02.2003 11:12:13.000", dt.ToString(dt_DateAndTimeLong)
+	  End Sub
+	  
+
+	 [ TestCase ]
+	Public Sub CheckFormatDate()
+		Dim dt As DateTime
+		
+		Set dt = Chronos.DateTime.FromString("01.02.03 11:12:13")
+		
+		Assert.Strict.AreEqual "01.02.2003", dt.ToString(dt_Date)
+	  End Sub
+	  
+	 [ TestCase ]
+	Public Sub CheckFormatTime()
+		Dim dt As DateTime
+		
+		Set dt = Chronos.DateTime.FromString("01.02.03 11:12:13")
+		
+		Assert.Strict.AreEqual "11:12:13.000", dt.ToString(dt_Time)
+	  End Sub
+	  
+	 [ TestCase ]
+	Public Sub CheckFormatISO()
+		Dim dt As DateTime
+		
+		Set dt = Chronos.DateTime.FromString("01.02.03 11:12:13")
+		
+		Assert.Strict.AreEqual "2003-02-01T11:12:13.000", dt.ToString(dt_ISO8601)
+	  End Sub
+	  
+	 [ TestCase ]
+	Public Sub CheckFormatCustom()
+		Dim dt As DateTime
+		
+		Set dt = Chronos.DateTime.FromString("01.02.13 11:12:13")
+		
+		Assert.Strict.AreEqual "Freitag, 01. Februar 13 um 11 Uhr und 12 Minuten", dt.ToFormattedString("<dddd>, <dd>. <MMMM> <yy> um <hh> Uhr und <mm> Minuten")
+	  End Sub
+	  
+End Module

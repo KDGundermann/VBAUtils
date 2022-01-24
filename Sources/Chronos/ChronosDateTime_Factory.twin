@@ -1,0 +1,59 @@
+Class ChronosDateTime_Factory
+    
+    Attribute VB_GlobalNameSpace = False
+    Attribute VB_Creatable = False
+    Attribute VB_PredeclaredId = False
+    Attribute VB_Exposed = False
+    Option Compare Database
+    Option Explicit
+    
+    Public Function New_() As DateTime
+      Set New_ = New DateTime
+    End Function
+    
+    Public Function FromDate(ByVal TheDate As Date, Optional ByVal IgnoreTimePart As Boolean = False) As DateTime
+      Dim dt As New DateTime
+      Call dt.FromDate(TheDate, IgnoreTimePart)
+      Set FromDate = dt
+    End Function
+    
+    Public Function FromString(ByVal TheString As String) As DateTime
+      Dim dt As New DateTime
+      Call dt.FromString(TheString)
+      Set FromString = dt
+    End Function
+    
+    Public Function FromStringWithFormat(ByVal TheString As String, ByVal TheFormat As String) As DateTime
+      Dim dt As New DateTime
+      Call dt.FromStringWithFormat(TheString, TheFormat)
+      Set FromStringWithFormat = dt
+    End Function
+    
+    ' YM => YYYY/MM
+    Public Function FromYM(ByVal YM As String) As DateTime
+      Dim dt As New DateTime
+      Call dt.FromYM(YM)
+      Set FromYM = dt
+    End Function
+    
+    ' YW => YYYY/WW
+    Public Function FromYW(ByVal YW As String) As DateTime
+      Dim dt As New DateTime
+      Call dt.FromYW(YW)
+      Set FromYW = dt
+    End Function
+    
+    Public Function MondayInWeek(ByVal Year As Integer, ByVal Week As Integer) As DateTime
+      Dim dt As New DateTime
+      Call dt.FromYearAndWeek(Year, Week)
+      Set MondayInWeek = dt
+    End Function
+    
+    Public Function Now() As DateTime
+      Set Now = OS.Time.Now ' Me.FromDate(Date)
+    End Function
+    Public Function Today() As DateTime
+      Set Today = OS.Time.Now.StartOfDay   ' Me.FromDate(Date)
+    End Function
+    
+End Class

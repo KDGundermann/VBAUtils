@@ -1,0 +1,10 @@
+Public Module DateOnly_Test
+
+	Public Sub Test_DateOnly()
+		Dim dt As DateOnly
+		
+		Set dt = Chronos.DateOnly.Today
+		Debug.Print dt.ToString
+	  End Sub
+
+End Module

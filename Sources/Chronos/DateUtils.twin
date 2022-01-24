@@ -1,0 +1,31 @@
+Module DateUtils
+
+	Public Function Variant2Date(ByVal TheVariant As Variant) As Date
+		Variant2Date = NZDate(TheVariant)
+	  End Function
+	  
+	  
+	  Public Function ParseDateString(ByVal TheString As String) As Date
+		Dim parts() As String
+		Dim Time()  As String
+		Dim dbl     As Double
+		
+		
+		parts = Split(TheString, " ")   ' Split on Date / Time
+		If UBound(parts) > 0 Then
+		  Time = Split(parts(1), ".")   ' Split on Milliseconds"
+		Else
+		  ReDim Time(0)
+		  Time(0) = "0"
+		End If
+		
+		dbl = CDbl(VBA.CDate(parts(0)))
+		dbl = dbl + CDbl(VBA.CDate(Time(0)))
+		
+		If UBound(Time) = 1 Then
+		  dbl = dbl + CDbl(Time(1)) * 1 / 24 / 60 / 60 / (10 ^ Len(Time(1)))
+		End If
+		ParseDateString = dbl
+	  End Function
+	  
+End Module

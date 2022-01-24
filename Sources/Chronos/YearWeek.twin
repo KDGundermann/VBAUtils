@@ -1,0 +1,76 @@
+'---------------------------------------------------------------------------------------
+' File   : YearWeek
+' Author : K.Gundermann
+' Date   : 06.12.2016
+' Purpose: Functions for YearWeek Values
+'---------------------------------------------------------------------------------------
+
+Class YearWeek
+
+	Attribute VB_GlobalNameSpace = False
+	Attribute VB_Creatable = False
+	Attribute VB_PredeclaredId = False
+	Attribute VB_Exposed = True
+	Option Explicit
+	
+	Private c_Date As DateTime
+	
+	Public Sub FromDateTime(ByVal TheDateTime As DateTime)
+	  Set c_Date = TheDateTime
+	End Sub
+	
+	Public Sub FromDate(ByVal TheDate As Date)
+	  Set c_Date = Chronos.DateTime.FromDate(TheDate)
+	End Sub
+	
+	Public Sub FromYW(ByVal YearWeek As String)
+	  Set c_Date = Chronos.DateTime.FromYW(YearWeek)
+	End Sub
+	
+	' -------------------------------------------------------------------------
+	' --- Properties
+	' -------------------------------------------------------------------------
+	
+	Public Property Get Year() As Integer
+	  Year = c_Date.Year
+	End Property
+	
+	Public Property Get Week() As Integer
+	  Week = c_Date.WeekInYear
+	End Property
+	
+	' -------------------------------------------------------------------------
+	' --- Methods
+	' -------------------------------------------------------------------------
+	
+	Public Sub AddWeeks(ByVal Weeks As Integer)
+	  c_Date.AddWeeks Weeks
+	End Sub
+	
+	Public Sub SubWeeks(ByVal Weeks As Integer)
+	  c_Date.AddWeeks -Weeks
+	End Sub
+	
+	Public Function NextWeek() As YearWeek
+	  c_Date.AddWeeks 1
+	  Set NextWeek = Me
+	End Function
+	
+	Public Function PrevWeek() As YearWeek
+	  c_Date.AddWeeks -1
+	  Set NextWeek = Me
+	End Function
+	
+	' -------------------------------------------------------------------------
+	' --- Cast
+	' -------------------------------------------------------------------------
+	
+	Public Function ToDate() As Date
+	  ToDate = c_Date.ToDate
+	End Function
+	
+	Public Function ToString() As String
+	  ToString = c_Date.ToYearAndWeek
+	End Function
+	
+End Class

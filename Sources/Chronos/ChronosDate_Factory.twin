@@ -1,0 +1,49 @@
+Class ChronosDate_Factory
+	Attribute VB_GlobalNameSpace = False
+	Attribute VB_Creatable = False
+	Attribute VB_PredeclaredId = False
+	Attribute VB_Exposed = False
+	Option Compare Database
+	Option Explicit
+	
+	Public Function New_() As DateOnly
+	  Set New_ = New DateOnly
+	End Function
+	
+	Public Function FromDate(ByVal TheDate As Date) As DateOnly
+	  Dim dt As New DateOnly
+	  Call dt.FromDate(TheDate)
+	  Set FromDate = dt
+	End Function
+	
+	Public Function FromString(ByVal TheString As String) As DateOnly
+	  Dim dt As New DateOnly
+	  Call dt.FromString(TheString)
+	  Set FromString = dt
+	End Function
+	
+	' YM => YYYY/MM
+	Public Function FromYM(ByVal YM As String) As DateOnly
+	  Dim dt As New DateOnly
+	  Call dt.FromYM(YM)
+	  Set FromYM = dt
+	End Function
+	
+	' YW => YYYY/WW
+	Public Function FromYW(ByVal YW As String) As DateOnly
+	  Dim dt As New DateOnly
+	  Call dt.FromYW(YW)
+	  Set FromYW = dt
+	End Function
+	
+	Public Function MondayInWeek(ByVal Year As Integer, ByVal Week As Integer) As DateOnly
+	  Dim dt As New DateOnly
+	  Call dt.FromYearAndWeek(Year, Week)
+	  Set MondayInWeek = dt
+	End Function
+	
+	Public Function Today() As DateOnly
+	  Set Today = OS.Time.Now.ToDateOnly
+	End Function
+	
+End Class

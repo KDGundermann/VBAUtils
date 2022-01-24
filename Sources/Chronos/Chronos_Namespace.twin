@@ -1,0 +1,13 @@
+
+[ AppObject ]
+Public Class Chronos_Namespace
+    
+    Attribute VB_GlobalNameSpace = True
+    Attribute VB_Creatable = False
+    
+    [ Description ("Chronos") ]
+    Public Property Get Chronos() As Chronos__Facade
+        Set Chronos = New Chronos__Facade
+    End Property
+    
+End Class
