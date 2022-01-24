@@ -1,0 +1,226 @@
+Public Class StringBuilder
+		
+	Private Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (pDst As Any, pSrc As Any, ByVal ByteLen As Long)
+		   
+	Private c_String As String
+	Private c_ChunkSize As Long
+	Private c_Pos As Long
+	Private c_Len As Long
+	
+	' ======================================================================================
+	' === Properties
+	' ======================================================================================
+	
+	Public Property Get Length() As Long
+	   Length = c_Pos \ 2
+	End Property
+	
+	Public Property Get Capacity() As Long
+	   Capacity = c_Len \ 2
+	End Property
+	
+	' Return the unicode character chunk size:
+	Public Property Get ChunkSize() As Long
+	   ChunkSize = c_ChunkSize \ 2
+	End Property
+	
+	' Set the chunksize.  We multiply by 2 because internally
+	' we are considering bytes:
+	Public Property Let ChunkSize(ByVal iChunkSize As Long)
+	   c_ChunkSize = iChunkSize * 2
+	End Property
+	
+	' The internal string:
+	Public Property Get ToString() As String
+	   If c_Pos > 0 Then
+		  ToString = Left$(c_String, c_Pos \ 2)
+	   End If
+	End Property
+	
+	Public Property Let TheString(ByRef sThis As String)
+	   Dim lLen As Long
+	   
+	   lLen = LenB(sThis)
+	   If lLen = 0 Then
+		  c_String = ""
+		  c_Pos = 0
+		  c_Len = 0
+	   Else
+		  If c_Len < lLen Then
+			 ' Need to expand the string 
+			 Do
+				c_String = c_String & Space$(c_ChunkSize \ 2)
+				c_Len = c_Len + c_ChunkSize
+			 Loop While c_Len < lLen
+		  End If
+		  CopyMemory ByVal StrPtr(c_String), ByVal StrPtr(sThis), lLen
+		  c_Pos = lLen
+	   End If
+	   
+	End Property
+	
+	Public Property Get This() As StringBuilder
+	  Set This = Me
+	End Property
+	
+	' ======================================================================================
+	' === Methods
+	' ======================================================================================
+	
+	Public Sub Clear()
+	   c_String = ""
+	   c_Pos = 0
+	   c_Len = 0
+	End Sub
+	
+	Public Sub AppendNL(ByRef TheString As String)
+	   Append TheString
+	   Append vbCrLf
+	End Sub
+	
+	Public Sub Append(ByRef TheString As String)
+	   Dim lLen As Long
+	   Dim lLenPlusPos As Long
+	 
+	   ' Append an item to the string:
+	   lLen = LenB(TheString)
+	   lLenPlusPos = lLen + c_Pos
+	   If lLenPlusPos > c_Len Then
+		  Dim lTemp As Long
+		  
+		  lTemp = c_Len
+		  Do While lTemp < lLenPlusPos
+			 lTemp = lTemp + c_ChunkSize
+		  Loop
+		  
+		  c_String = c_String & Space$((lTemp - c_Len) \ 2)
+		  c_Len = lTemp
+	   End If
+	   
+	   CopyMemory ByVal UnsignedAdd(StrPtr(c_String), c_Pos), ByVal StrPtr(TheString), lLen
+	   c_Pos = c_Pos + lLen
+	End Sub
+	
+	Public Sub AppendByVal(ByVal TheString As String)
+	   Append TheString
+	End Sub
+	
+	Public Sub Insert(ByVal iIndex As Long, ByRef sThis As String)
+	   Dim lLen As Long
+	   Dim lPos As Long
+	   Dim lSize As Long
+	   
+	   ' is iIndex within bounds?
+	   If (iIndex * 2 > c_Pos) Then
+		  Err.Raise 9
+	   Else
+	   
+		  lLen = LenB(sThis)
+		  If (c_Pos + lLen) > c_Len Then
+			 c_String = c_String & Space$(c_ChunkSize \ 2)
+			 c_Len = c_Len + c_ChunkSize
+		  End If
+		  
+		  ' Move existing characters from current position
+		  lPos = UnsignedAdd(StrPtr(c_String), iIndex * 2)
+		  lSize = c_Pos - iIndex * 2
+		  
+		  ' moving from iIndex to iIndex + lLen
+		  CopyMemory ByVal UnsignedAdd(lPos, lLen), ByVal lPos, lSize
+		  
+		  ' Insert new characters:
+		  CopyMemory ByVal lPos, ByVal StrPtr(sThis), lLen
+		  
+		  c_Pos = c_Pos + lLen
+	   End If
+	End Sub
+	
+	Public Sub InsertByVal(ByVal iIndex As Long, ByVal sThis As String)
+	   Insert iIndex, sThis
+	End Sub
+	
+	Public Sub Remove(ByVal iIndex As Long, ByVal lLen As Long)
+	   Dim lSrc As Long
+	   Dim lDst As Long
+	   Dim lSize As Long
+	
+	   ' is iIndex within bounds?
+	   If (iIndex * 2 > c_Pos) Then
+		  Err.Raise 9
+	   Else
+		  ' is there sufficient length?
+		  If ((iIndex + lLen) * 2 > c_Pos) Then
+			 Err.Raise 9
+		  Else
+			 ' Need to copy characters from iIndex*2 to m_iPos back by lLen chars:
+			 lSrc = UnsignedAdd(StrPtr(c_String), (iIndex + lLen) * 2)
+			 lDst = UnsignedAdd(StrPtr(c_String), iIndex * 2)
+			 lSize = (c_Pos - (iIndex + lLen) * 2)
+			 CopyMemory ByVal lDst, ByVal lSrc, lSize
+			 c_Pos = c_Pos - lLen * 2
+		  End If
+	   End If
+	End Sub
+	
+	Public Function Find(ByVal sToFind As String, _
+	   Optional ByVal lStartIndex As Long = 1, _
+	   Optional ByVal Compare As VbCompareMethod = vbTextCompare _
+	   ) As Long
+	   
+	   Dim lInstr As Long
+	   If (lStartIndex > 0) Then
+		  lInstr = InStr(lStartIndex, c_String, sToFind, Compare)
+	   Else
+		  lInstr = InStr(c_String, sToFind, Compare)
+	   End If
+	   If (lInstr < c_Pos \ 2) Then
+		  Find = lInstr
+	   End If
+	End Function
+	
+	Public Sub Replace(ByVal sToFind As String, ByVal sToReplace As String, _
+						Optional ByVal lStartIndex As Long = 1, _
+						Optional ByVal lCount As Long = -1, _
+						Optional ByVal Compare As VbCompareMethod = vbTextCompare)
+						
+	  TheString = Strings.Replace(c_String, sToFind, sToReplace, lStartIndex, lCount, Compare)
+	End Sub
+	
+	
+	' Reduce the string size so only the minimal chunks are allocated:
+	Public Sub HeapMinimize()
+	   Dim iLen As Long
+	   
+	   If (c_Len - c_Pos) > c_ChunkSize Then
+		  iLen = c_Len
+		  Do While (iLen - c_Pos) > c_ChunkSize
+			 iLen = iLen - c_ChunkSize
+		  Loop
+		  c_String = Left$(c_String, iLen \ 2)
+		  c_Len = iLen
+	   End If
+	   
+	End Sub
+	
+	' ======================================================================================
+	' === Private
+	' ======================================================================================
+	
+	' This function is useful when doing pointer arithmetic,
+	' but note it only works for positive values of Incr
+	Private Function UnsignedAdd(Start As Long, Incr As Long) As Long
+	   If Start And &H80000000 Then 'Start < 0
+		  UnsignedAdd = Start + Incr
+	   ElseIf (Start Or &H80000000) < -Incr Then
+		  UnsignedAdd = Start + Incr
+	   Else
+		  UnsignedAdd = (Start + &H80000000) + (Incr + &H80000000)
+	   End If
+	End Function
+	
+	Private Sub Class_Initialize()
+	   ' The default allocation: 8192 characters.
+	   c_ChunkSize = 8192 * 2
+	End Sub
+	
+End Class

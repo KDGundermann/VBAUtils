@@ -1,0 +1,26 @@
+[ TestFixture ]
+Module StringUtils_Tests
+    
+    [ TestCase ]
+    Public Sub Test_IsString()
+        Assert.Exact.IsTrue °String.IsString("")
+        Assert.Exact.IsTrue °String.IsString("abcd")
+        Assert.Exact.IsFalse °String.IsString(0)
+        Assert.Exact.IsFalse °String.IsString(Nothing)
+        Assert.Exact.IsFalse °String.IsString(False)
+    End Sub
+    
+    [ TestCase ]
+    Public Sub Test_IsNullString()
+        Assert.Exact.IsTrue °String.IsNullString("")
+        Assert.Exact.IsFalse °String.IsNullString("abcd")
+    End Sub
+
+    [ TestCase ]
+    Public Sub Test_NZString()
+        Assert.Exact.AreEqual "", °String.NZString("")
+        Assert.Exact.AreEqual "", °String.NZString(Null)
+        Assert.Exact.AreEqual "abcd", °String.NZString("abcd")
+    End Sub
+    
+End Module

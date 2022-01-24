@@ -1,0 +1,12 @@
+Public Class °Strings_Namespace
+	Attribute VB_GlobalNameSpace = True
+	Attribute VB_Creatable = False
+	
+	Private m_Strings as °Strings_Factory
+	
+	Public Property Get °Strings() as °Strings_Factory
+		if m_Strings is Nothing then set m_Strings = new °Strings_Factory
+		set °Strings = m_Strings
+	End Property
+
+End Class

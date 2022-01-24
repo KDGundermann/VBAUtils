@@ -1,0 +1,32 @@
+[ TestFixture ]
+Module StringSplit_Tests
+    
+    [ TestCase ]
+    Sub SplitToArray()
+        ' Arrange
+        Dim str  As String = "This i a test"
+        Dim arr() As String
+        ' Act
+        arr = °Strings.Split.Str2Array(str, TheDelimiter:=" ")
+        ' Assert
+        Assert.Permissive.AreEqual 3, UBound(arr)
+        Assert.Permissive.AreEqual "i", arr(1)
+    End Sub
+    
+    [ TestCase ]
+    Sub Split2Vars()
+        ' Arrange
+        Dim str As String = "This is a test"
+        Dim s1 As String
+        Dim s2 As String
+        Dim s3 As String
+        Dim count As Integer
+        ' Act
+        count = °Strings.Split.Str2Vars(str, " ", s1, s2, s3)
+        ' Assert
+        Assert.Permissive.AreEqual 3, count
+        Assert.Permissive.AreEqual "This", s1
+        Assert.Permissive.AreEqual "a test", s3
+    End Sub
+    
+End Module

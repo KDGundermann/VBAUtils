@@ -1,0 +1,51 @@
+[ TestFixture ]
+Public Module StringBuilder_Tests
+	
+	[ TestCase ]
+	Public Sub CreateSimpleString()
+		With °Strings.Builder
+			.Append "Test"
+			Assert.Exact.AreEqual "Test", .ToString
+		End With
+	End Sub
+
+	[ TestCase ]
+	Public Sub CreateLongerString()
+		With °Strings.Builder
+			.Append "This"
+			.Append "is"
+			.Append "a longer"
+			.Append "Test"
+			Assert.Exact.AreEqual "Thisisa longerTest", .ToString
+		End With
+	End Sub
+
+	[ TestCase ]
+	Public Sub InsertString()
+		With °Strings.Builder
+			.Append "Test"
+			.Insert 0, "This is a "
+			Assert.Exact.AreEqual "This is a Test", .ToString
+		End With
+	End Sub
+
+	[ TestCase ]
+	Public Sub RemoveString()
+		With °Strings.Builder
+			.TheString = "This is a Test"
+			.Remove 5, 2
+			Assert.Exact.AreEqual "This  a Test", .ToString
+		End With
+	End Sub
+
+	[ TestCase ]
+	Public Sub ClearString()
+		With °Strings.Builder
+			.TheString = "This is a Test"
+			.Clear
+			.AppendByVal "Test"
+			Assert.Exact.AreEqual "Test", .ToString
+		End With
+	End Sub
+
+End Module

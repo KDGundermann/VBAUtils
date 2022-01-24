@@ -1,0 +1,200 @@
+'---------------------------------------------------------------------------------------
+' Module    : StringSplit
+' Author    : K.Gundermann
+' Date      : 27.09.2011
+' Purpose   : Splitting Strings -> Array | Collection
+'---------------------------------------------------------------------------------------
+
+Public Class StringSpilt
+		
+	' The normal VBA Split Function aber mit ',' Delimiter
+	Public Function Str2Array(ByVal TheString As String, Optional ByVal TheDelimiter As String = ",") As String()
+	  Str2Array = VBA.Split(TheString, TheDelimiter)
+	End Function
+	
+	' Wofür?? KDG 13.05.2020 -> clsDictionary
+	' Split
+	Public Function Str2ArrayOfVariant(ByVal TheString As String, Optional ByVal TheDelimiter As String = ",") As Variant()
+	  Dim vArr()     As Variant
+	  Dim sPieces() As String
+	  Dim i As Integer
+	
+	  sPieces = VBA.Split(TheString, TheDelimiter)
+	  ReDim vArr(UBound(sPieces))
+	  For i = 0 To UBound(sPieces)
+		vArr(i) = sPieces(i)
+	  Next
+	  Str2ArrayOfVariant = vArr
+	End Function
+	
+	' Teilt ein String in der Form "Wert1, Wert2, Wert3,.. " in eine Collection auf
+	Public Function Str2Collection(ByVal TheString As String, Optional ByVal TheDelimiter As String = ",") As Collection
+	  Dim col As Collection
+	  Dim sPieces() As String
+	  Dim i As Integer
+	
+	  Set col = New Collection
+	  sPieces = VBA.Split(TheString, TheDelimiter)
+	  For i = 0 To UBound(sPieces)
+		col.Add sPieces(i)
+	  Next
+	  Set Str2Collection = col
+	End Function
+	
+	
+	' Teilt ein String in der Form "Wert1, Wert2, Wert3,.. " in ein Array Werte() auf
+	Public Function Str2Vars(ByVal TheString As String, ByVal TheDelim As String, ParamArray Werte() As Variant) As Integer
+	  Dim sPieces() As String
+	  Dim i As Integer
+	
+	  sPieces = Split(TheString, TheDelim, Limit:=UBound(Werte) + 1)
+	  For i = 0 To UBound(sPieces)
+		Werte(i) = sPieces(i)
+	  Next
+	  Str2Vars = UBound(sPieces) + 1
+	End Function
+	
+	Public Function Element(ByVal TheString As String, ByVal Index As Integer, Optional ByVal TheDelimiter As String = ",") As String
+	  Dim arr() As String
+	  
+	  arr = VBA.Split(TheString, TheDelimiter)
+	  If Index <= UBound(arr) Then
+		Element = arr(Index)
+	  End If
+	End Function
+	
+	
+	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+	' SplitMutliChar
+	' This function splits Text into an array of substrings, each substring
+	' delimited by any character in DelimChars. Only a single character
+	' may be a delimiter between two substrings, but DelimChars may
+	' contain any number of delimiter characters. If you need multiple
+	' character delimiters, use the SplitMultiDelimsEX function. It returns
+	' an unallocated array it Text is empty, a single element array
+	' containing all of text if DelimChars is empty, or a 1 or greater
+	' element array if the Text is successfully split into substrings.
+	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+	Function StrM2Array(ByVal Text As String, ByVal DelimChars As String) As String()
+	  Dim Pos1 As Long
+	  Dim l As Long
+	  Dim n As Long
+	  Dim m As Long
+	  Dim arr() As String
+	  Dim i As Long
+	  
+	  ''''''''''''''''''''''''''''''''
+	  ' if Text is empty, get out
+	  ''''''''''''''''''''''''''''''''
+	  If Len(Text) = 0 Then
+		  Exit Function
+	  End If
+	  ''''''''''''''''''''''''''''''''''''''''''''''
+	  ' if DelimChars is empty, return original text
+	  '''''''''''''''''''''''''''''''''''''''''''''
+	  If DelimChars = vbNullString Then
+		  StrM2Array = Array(Text)
+		  Exit Function
+	  End If
+	  
+	  '''''''''''''''''''''''''''''''''''''''''''''''
+	  ' oversize the array, we'll shrink it later so
+	  ' we don't need to use Redim Preserve
+	  '''''''''''''''''''''''''''''''''''''''''''''''
+	  ReDim arr(1 To Len(Text))
+	  
+	  i = 0
+	  l = Len(Text)
+	  Pos1 = 1
+	  
+	  For n = 1 To l
+		  For m = 1 To Len(DelimChars)
+			  If StrComp(Strings.Mid(Text, n, 1), Strings.Mid(DelimChars, m, 1), vbTextCompare) = 0 Then
+				  i = i + 1
+				  arr(i) = Strings.Mid(Text, Pos1, n - Pos1)
+				  Pos1 = n + 1
+				  n = n + 1
+			  End If
+			  While (n <= l) And Nz(InStr(DelimChars, Strings.Mid(Text, Pos1, 1))) > 0
+				' Skip Multiple Delimiters
+				Pos1 = Pos1 + 1
+				n = n + 1
+			  Wend
+		  Next m
+	  Next n
+	  
+	  If Pos1 <= l Then
+		  i = i + 1
+		  arr(i) = Strings.Mid(Text, Pos1)
+	  End If
+	  
+	  ''''''''''''''''''''''''''''''''''''''
+	  ' chop off unused array elements
+	  ''''''''''''''''''''''''''''''''''''''
+	  ReDim Preserve arr(1 To i)
+	  StrM2Array = arr
+		
+	End Function
+	
+	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+	' SplitMutliChar
+	' This function splits Text into an array of substrings, each substring
+	' delimited by any character in DelimChars. Only a single character
+	' may be a delimiter between two substrings, but DelimChars may
+	' contain any number of delimiter characters. If you need multiple
+	' character delimiters, use the SplitMultiDelimsEX function. It returns
+	' an unallocated array it Text is empty, a single element array
+	' containing all of text if DelimChars is empty, or a 1 or greater
+	' element array if the Text is successfully split into substrings.
+	'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+	Function StrM2Collection(ByVal Text As String, ByVal DelimChars As String) As Collection
+	  Dim Pos1 As Long
+	  Dim l As Long
+	  Dim n As Long
+	  Dim m As Long
+	  Dim col As Collection
+	  
+	  Set col = New Collection
+	  ''''''''''''''''''''''''''''''''
+	  ' if Text is empty, get out
+	  ''''''''''''''''''''''''''''''''
+	  If Len(Text) = 0 Then
+		  Set StrM2Collection = col
+		  Exit Function
+	  End If
+	  ''''''''''''''''''''''''''''''''''''''''''''''
+	  ' if DelimChars is empty, return original text
+	  '''''''''''''''''''''''''''''''''''''''''''''
+	  If DelimChars = vbNullString Then
+		col.Add Text
+		Set StrM2Collection = col
+		Exit Function
+	  End If
+	  
+	  l = Len(Text)
+	  Pos1 = 1
+	  
+	  For n = 1 To l
+		  For m = 1 To Len(DelimChars)
+			  If StrComp(Mid(Text, n, 1), Mid(DelimChars, m, 1), vbTextCompare) = 0 Then
+				  col.Add Mid(Text, Pos1, n - Pos1)
+				  Pos1 = n + 1
+				  n = n + 1
+			  End If
+			  While (n <= l) And Nz(InStr(DelimChars, Mid(Text, Pos1, 1))) > 0
+				' Skip Multiple Delimiters
+				Pos1 = Pos1 + 1
+				n = n + 1
+			  Wend
+		  Next m
+	  Next n
+	  
+	  If Pos1 <= l Then
+		col.Add Mid(Text, Pos1)
+	  End If
+	  
+	  Set StrM2Collection = col
+		
+	End Function
+	
+End Class

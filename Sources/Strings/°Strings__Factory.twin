@@ -1,0 +1,49 @@
+Public Class °Strings__Factory
+
+  Private m_Split as StringSpilt
+
+' ---------------------------------------------------------------------------------------
+' ---  Factories
+' ---------------------------------------------------------------------------------------
+
+  Public Property Get Split() as StringSpilt
+    if m_Split is nothing then set m_Split = new StringSpilt
+    set Split = m_Split
+  End Property
+
+  Public Property Get Builder() As StringBuilder
+    Set Builder = new StringBuilder  
+  End Property
+
+'---------------------------------------------------------------------------------------
+' Method : Pad
+' Author : K.Gundermann
+' Date   : 02.11.2016
+' Purpose: Padding a String with Blanks
+'---------------------------------------------------------------------------------------
+
+Public Function Pad(ByVal TheString As String, ByVal iLen As Integer, Optional ByVal PadChar As String = " ", Optional ByVal TrimToLength As Boolean = False) As String
+  Pad = PadRight(TheString, iLen, PadChar, TrimToLength)
+End Function
+
+Public Function PadRight(ByVal TheString As String, ByVal iLen As Integer, Optional ByVal PadChar As String = " ", Optional ByVal TrimToLength As Boolean = False) As String
+  If Len(TheString) < iLen Then
+    PadRight = TheString & VBA.String$(iLen - Len(TheString), PadChar)
+  ElseIf TrimToLength Then
+    PadRight = VBA.Left$(TheString, iLen)
+  Else
+    PadRight = TheString
+  End If
+End Function
+
+Public Function PadLeft(ByVal TheString As String, ByVal iLen As Integer, Optional ByVal PadChar As String = " ", Optional ByVal TrimToLength As Boolean = False) As String
+  If Len(TheString) < iLen Then
+    PadLeft = VBA.String$(iLen - Len(TheString), PadChar) & TheString
+  ElseIf TrimToLength Then
+    PadLeft = VBA.Left$(TheString, iLen)
+  Else
+    PadLeft = TheString
+  End If
+End Function
+
+End Class

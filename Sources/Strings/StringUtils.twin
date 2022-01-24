@@ -1,0 +1,140 @@
+Public Class StringUtils
+
+	'---------------------------------------------------------------------------------------
+	' File    : StringUtils
+	' Author  : K.Gundermann
+	' Date    : 03.11.2017
+	' Purpose : Global Functions for Strings and Chars
+	'---------------------------------------------------------------------------------------
+	
+	Public Const SingleQuote = "'"
+	Public Const DoubleQuote = """"
+	
+	Public Function IsString(ByVal TheValue As Variant) As Boolean
+	  IsString = (VarType(TheValue) = vbString)
+	End Function
+	
+	Public Function IsNullString(ByVal TheString As String) As Boolean
+	  IsNullString = (TheString = vbNullString)
+	End Function
+	
+	Public Function NZString(ByVal TheValue As Variant) As String
+		If VarType(TheValue) = vbString Then
+			NZString = TheValue
+		ElseIf VarType(TheValue) = vbNull Then
+			NZString = ""
+		Else
+			NZString = CStr(TheValue)
+		End If
+	End Function
+	
+	' #############################################################################################
+	' ###  Chars
+	' #############################################################################################
+	
+	Public Function IsAlphaChar(ByVal TheChar As String) As Boolean
+	  Dim cChar As String
+	
+	  ' cChar = UCase(VBA.Left$(TheChar, 1))
+	  cChar = VBA.Left$(TheChar, 1)
+	  IsAlphaChar = (cChar >= "A" And cChar <= "Z")
+	End Function
+	
+	Public Function IsNumericChar(ByVal TheChar As String) As Boolean
+	  Dim cChar As String
+	
+	  cChar = VBA.Left$(TheChar, 1)
+	  IsNumericChar = (cChar >= "0" And cChar <= "9")
+	End Function
+	
+	'---------------------------------------------------------------------------------------
+	' Procedure : StringPos
+	' Author    : K.Gundermann
+	' Date      : 27.06.2012
+	' Purpose   : Returns Position from SearchString in TheStr, starting to search at StartPos
+	'---------------------------------------------------------------------------------------
+	'
+	Public Function StringPos(ByVal TheString As String, ByVal SearchString As String, _
+				  Optional ByVal StartPos As Long = -1, _
+				  Optional ByVal Compare As VbCompareMethod = vbBinaryCompare) As Long
+				  
+	  If StartPos >= 0 Then
+		StringPos = NZLng(VBA.InStr(StartPos, TheString, SearchString, Compare))
+	  Else
+		StringPos = NZLng(VBA.InStr(1, TheString, SearchString, Compare))
+	  End If
+	End Function
+	
+	Public Function Contains(ByVal TheString As String, ByVal SearchString As String, Optional ByVal Compare As VbCompareMethod = vbBinaryCompare) As Boolean
+	  Contains = NZLng(VBA.InStr(1, TheString, SearchString, Compare)) > 0
+	End Function
+	Public Function StartsWith(ByVal TheString As String, ByVal SearchString As String, Optional ByVal Compare As VbCompareMethod = vbBinaryCompare) As Boolean
+	  StartsWith = (StrComp(VBA.Left$(TheString, Len(SearchString)), SearchString, Compare) = 0)
+	End Function
+	Public Function EndsWith(ByVal TheString As String, ByVal SearchString As String, Optional ByVal Compare As VbCompareMethod = vbBinaryCompare) As Boolean
+	  EndsWith = (StrComp(VBA.Right$(TheString, Len(SearchString)), SearchString, Compare) = 0)
+	End Function
+	
+		
+	
+	' #############################################################################################
+	' ###  Lineend Handling
+	' #############################################################################################
+	
+	' hängt die einzelnen Strings jeweils durch ein CrLf getrennt hintereinander
+	Public Function ConcatCrLF(ParamArray sStrings() As Variant) As String
+	  Dim i As Integer, s As String
+	
+	  s = vbNullString
+	  For i = 0 To UBound(sStrings)
+		If Len(NZString(sStrings(i))) > 0 Then
+		  s = s & vbCrLf & sStrings(i)
+		End If
+	  Next
+	  ConcatCrLF = Mid$(s, 3) ' Führendes CrLf abschneiden
+	End Function
+	
+	
+	' entfernt alle Cr und Lf aus dem String
+	Public Function RemoveCRLF(ByVal TheStr As String) As String
+	  Dim p As Integer
+	
+		p = InStr(TheStr, vbCr)
+		While p > 0
+		  TheStr = VBA.Left$(TheStr, p - 1) + " " + Mid$(TheStr, p + 1)
+		  p = InStr(TheStr, vbCr)
+		Wend
+		p = InStr(TheStr, vbLf)
+		While p > 0
+		  TheStr = VBA.Left$(TheStr, p - 1) + Mid$(TheStr, p + 1)
+		  p = InStr(TheStr, vbLf)
+		Wend
+		RemoveCRLF = TheStr
+	End Function
+	
+	
+	' #####################################################################################
+	' String durch Leerzeichen spreizen
+	' aus "123"  wird "1  2  3  "
+	' #####################################################################################
+	
+	Public Function StrBlowup(ByVal TheStr As String) As String
+	  Dim i As Integer
+	
+	  StrBlowup = vbNullString
+	  For i = 1 To Len(TheStr)
+		StrBlowup = StrBlowup & Mid$(TheStr, i, 1) & "  "
+	  Next
+	End Function
+	
+	
+	' #####################################################################################
+	' Konvertiert eine Eingabe im deutschen Zahlenformat in das interne
+	' sIn= 1.234,56  => 1234.56
+	' #####################################################################################
+	
+	Public Function NumStr2Intern(ByVal TheString As String) As String
+	  NumStr2Intern = Replace(Replace(TheString, ".", vbNullString), ",", ".")
+	End Function
+	
+End Class
