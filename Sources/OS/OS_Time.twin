@@ -1,0 +1,55 @@
+'---------------------------------------------------------------------------------------
+' Module    : OS_TIME
+' Author    : K.Gundermann
+' Date      : 27.09.2013
+' Purpose   : Constants and Function Declaration for Windows Time
+'---------------------------------------------------------------------------------------
+
+Class OS_Time
+
+	Public Type SYSTEMTIME
+	  wYear         As Integer
+	  wMonth        As Integer
+	  wDayOfWeek    As Integer
+	  wDay          As Integer
+	  wHour         As Integer
+	  wMinute       As Integer
+	  wSecond       As Integer
+	  wMilliseconds As Integer
+	End Type
+	
+	
+	Public Type FILETIME
+	  dwLowDateTime As Long
+	  dwHighDateTime As Long
+	End Type
+	
+	' Declare-Anweisungen.
+	Private Declare Sub api_GetLocalTime Lib "kernel32" Alias "GetLocalTime" (lpSystemTime As SYSTEMTIME)
+	Private Declare Function api_SetLocalTime Lib "kernel32" Alias "SetLocalTime" (lpSystemTime As SYSTEMTIME) As Long
+
+	Private Declare Function api_GetTickCount Lib "kernel32" Alias "GetTickCount" () As Long ' milliseconds since last windows reboot, resolution 10 ms
+	Private Declare Function api_TimeGetTime Lib "winmm.dll" Alias "timeGetTime" () As Long  ' in ms , resolution 1 ms
+
+	Public Function Now() As DateTime
+		Dim p_sysSystemTime As SYSTEMTIME
+		
+		api_GetLocalTime p_sysSystemTime
+		Set Now = New DateTime
+		Now.FromSystemTime p_sysSystemTime
+	  
+	  End Function
+	  
+	  Public Sub GetLocalTime(ByRef lpSystemTime As SYSTEMTIME)
+		api_GetLocalTime lpSystemTime
+	  End Sub
+	  
+	  Public Function GetTickCount() As Long
+		Return api_GetTickCount
+	  End Function
+	  
+	  Public Function TimeGetTime() As Long
+		Return api_TimeGetTime
+	  End Function
+	  
+End Class

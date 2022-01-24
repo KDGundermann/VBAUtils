@@ -1,0 +1,10 @@
+Module OS_Namespace
+
+	Private m_OS As OS__Facade
+	
+	Public Property Get OS() As OS__Facade
+		If m_OS Is Nothing Then Set m_OS = New OS__Facade
+		Set OS = m_OS
+	End Property
+
+End Module

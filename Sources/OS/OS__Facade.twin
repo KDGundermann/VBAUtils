@@ -1,0 +1,22 @@
+Class OS__Facade
+	
+	Private m_Time      As OS_Time
+	
+	' --------------------------------------------------------------------
+	' --- Namespace
+	' --------------------------------------------------------------------
+
+	Public Property Get Time() As OS_Time
+		If m_Time Is Nothing Then Set m_Time = New OS_Time
+		Set Time = m_Time
+	End Property
+
+	' --------------------------------------------------------------------
+	' --- Factories
+	' --------------------------------------------------------------------
+	  
+	Public Function Timer() As Timer
+		Set Timer = New Timer
+	End Function
+
+End Class

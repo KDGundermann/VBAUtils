@@ -1,0 +1,12 @@
+[ TestFixture ]
+Module OS_Timer_Tests
+    
+    [ TestCase ]
+    Public Sub TimerSleepFor1Second()
+        With OS.Timer
+            .StartTimer 1000
+            Assert.Exact.IsTrue .ElapsedTime >= 1000
+        End With
+    End Sub
+    
+End Module

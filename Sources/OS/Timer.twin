@@ -1,0 +1,52 @@
+'---------------------------------------------------------------------------------------
+' Module    : Timer
+' Author    : K.Gundermann
+' Date      : 23.10.2016
+' Purpose   : Timer for creating a wait loop
+' Remarks   : Will NOT block, but runs 'DoEvents'
+'---------------------------------------------------------------------------------------
+Public Class Timer
+
+	Attribute VB_Creatable = True
+	Attribute VB_Exposed = True
+		
+	Private Declare Function TimeGetTime Lib "winmm.dll" Alias "timeGetTime" () As Long ' in ms , Resolution 1 ms
+		
+	Private p_blnTimerDone      As Boolean
+	Private p_lngElapsedTime    As Long
+	Private p_lngStartTime      As Long
+	
+	
+	Public Sub StartTimer(ByVal lngInterval As Long)
+		Dim lngEndTime As Long
+		
+		p_blnTimerDone = False
+		p_lngStartTime = TimeGetTime()
+		lngEndTime = p_lngStartTime + lngInterval
+		Do While TimeGetTime() < lngEndTime
+		  DoEvents
+		  p_lngElapsedTime = TimeGetTime() - p_lngStartTime
+		Loop
+		p_blnTimerDone = True
+	End Sub
+	
+	' --------------------------------------------------------
+	' --- Properties
+	' --------------------------------------------------------
+	
+	Property Get TimerDone() As Boolean
+		TimerDone = p_blnTimerDone
+	End Property
+	
+	Property Get ElapsedTime() As Long
+		ElapsedTime = p_lngElapsedTime
+	End Property
+	
+	' --------------------------------------------------------
+	
+	Private Sub Class_Initialize()
+		p_blnTimerDone = False
+		p_lngElapsedTime = 0
+	End Sub
+	
+End Class

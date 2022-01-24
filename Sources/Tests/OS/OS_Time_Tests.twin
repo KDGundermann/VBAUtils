@@ -1,0 +1,22 @@
+[ TestFixture ]
+Module OS_Time_Tests
+    
+    [ TestCase ]
+    Public Sub Test_Time_Now()
+        Dim dt As DateTime
+        
+        Set dt = OS.Time.Now()
+        With dt
+            Assert.Exact.IsTrue .Year > 2000
+            Assert.Exact.IsTrue .Month > 0
+            Assert.Exact.IsTrue .Day > 0
+            Assert.Exact.IsTrue .Hour > 0
+        End With
+    End Sub
+    
+    [ TestCase ]
+    Public Sub Test_GetTime()
+        Assert.Exact.IsTrue OS.Time.TimeGetTime > 0
+    End Sub
+    
+End Module
